@@ -1,4 +1,5 @@
 import { ordersActions, ordersSelector } from '@slices/orders'
+import { StatusType } from '@types'
 import { useActionCreators, useDispatch, useSelector } from '@store/hooks'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { fetchOrdersWithFilters } from '../../services/slice/orders/thunk'
@@ -15,8 +16,18 @@ export default function AdminFilterOrders() {
     const { updateFilter, clearFilters } = useActionCreators(ordersActions)
     const filterOrderOption = useSelector(ordersSelector.selectFilterOption)
 
-    const handleFilter = (filters: Record<string, any>) => {
-        dispatch(updateFilter({ ...filters, status: filters.status.value }))
+    const handleFilter = (filters: Record<string, string | { value: string }>) => {
+
+       // Извлекаем status.value, если status — объект
+        const statusValue = typeof filters.status === 'object'
+        ? (filters.status as { value: string }).value
+        : filters.status;
+
+        // Приводим к правильному типу
+        const validStatus = statusValue === '' || statusValue === undefined
+        ? undefined
+        : statusValue as StatusType
+        dispatch(updateFilter({ ...filters, status:validStatus }))
         const queryParams: { [key: string]: string } = {}
         Object.entries(filters).forEach(([key, value]) => {
             if (value) {

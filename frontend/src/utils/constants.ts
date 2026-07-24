@@ -8,7 +8,7 @@ export type OptionType = {
     value: string | number
 }
 
-export const REGEXP_IMAGE_NAME = /^.*[\\/\\]| \(\d+\)\.\w+$/g
+// export const REGEXP_IMAGE_NAME = /^.*[\\/\\]| \(\d+\)\.\w+$/g
 
 export const CATEGORY_TYPES: OptionType[] = [
     {

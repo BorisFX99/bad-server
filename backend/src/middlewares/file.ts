@@ -2,6 +2,7 @@ import { Request, Express } from 'express'
 import multer, { FileFilterCallback } from 'multer'
 import { mkdirSync } from 'fs'
 import { join } from 'path'
+import { randomBytes } from 'crypto'
 
 type DestinationCallback = (error: Error | null, destination: string) => void
 type FileNameCallback = (error: Error | null, filename: string) => void
@@ -29,7 +30,15 @@ const storage = multer.diskStorage({
         file: Express.Multer.File,
         cb: FileNameCallback
     ) => {
-        cb(null, file.originalname)
+         // ✅ Безопасное имя файла
+        const ext = file.originalname.split('.').pop() || ''
+        const safeExt = ext.replace(/[^a-zA-Z0-9]/g, '')  // Только буквы и цифры
+
+        // ✅ Уникальное имя с временной меткой
+        const timestamp = Date.now()
+        const random = randomBytes(8).toString('hex')
+        const safeName = `${timestamp}-${random}.${safeExt}`
+        cb(null, safeName)
     },
 })
 
@@ -39,6 +48,7 @@ const types = [
     'image/jpeg',
     'image/gif',
     'image/svg+xml',
+    'image/webp',
 ]
 
 const fileFilter = (
@@ -47,10 +57,19 @@ const fileFilter = (
     cb: FileFilterCallback
 ) => {
     if (!types.includes(file.mimetype)) {
-        return cb(null, false)
+       return cb(new Error('Неподдерживаемый тип файла. Разрешены: PNG, JPG, JPEG, GIF, SVG, WebP'))
     }
 
     return cb(null, true)
 }
+// ✅ Добавляем ограничения
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024, // ✅ 5MB максимум
+        files: 1, // ✅ Только 1 файл
+    },
+})
 
-export default multer({ storage, fileFilter })
+export default upload

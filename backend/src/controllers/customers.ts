@@ -1,8 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
-import { FilterQuery } from 'mongoose'
+import { FilterQuery, Error as MongooseError } from 'mongoose'
+import BadRequestError from '../errors/bad-request-error'
 import NotFoundError from '../errors/not-found-error'
 import Order from '../models/order'
 import User, { IUser } from '../models/user'
+import escapeRegExp from '../utils/escapeRegExp'
+
 
 // TODO: Добавить guard admin
 // eslint-disable-next-line max-len
@@ -91,15 +94,14 @@ export const getCustomers = async (
             }
         }
 
-        if (search) {
-            const searchRegex = new RegExp(search as string, 'i')
+        if (search && typeof search === 'string') {
+            const escapedSearch = escapeRegExp(search)
+            const searchRegex = new RegExp(escapedSearch, 'i')
+            // Так же, но с экранированием
             const orders = await Order.find(
-                {
-                    $or: [{ deliveryAddress: searchRegex }],
-                },
+                { deliveryAddress: searchRegex },
                 '_id'
-            )
-
+                )
             const orderIds = orders.map((order) => order._id)
 
             filters.$or = [
@@ -159,17 +161,24 @@ export const getCustomerById = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
-    try {
-        const user = await User.findById(req.params.id).populate([
-            'orders',
-            'lastOrder',
-        ])
-        res.status(200).json(user)
-    } catch (error) {
+    ) => {
+        try {
+            const user = await User.findById(req.params.id)
+                .populate(['orders', 'lastOrder'])
+
+            // Добавляем проверку
+            if (!user) {
+                return next(new NotFoundError('Пользователь не найден'))
+            }
+
+            res.status(200).json(user)
+        } catch (error) {
+            if (error instanceof MongooseError.CastError) {
+                return next(new BadRequestError('Передан не валидный ID пользователя'))
+            }
         next(error)
+        }
     }
-}
 
 // TODO: Добавить guard admin
 // Patch /customers/:id

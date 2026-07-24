@@ -18,15 +18,17 @@ export default function AdminFilterCustomers() {
     const filterCustomersOption = useSelector(
         customersSelector.selectFilterOption
     )
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
-    const handleFilter = (filters: Record<string, any>) => {
+
+    const handleFilter = (filters: Record<string, unknown>) => {
         dispatch(updateFilter({ ...filters }))
-        const queryParams: { [key: string]: string } = {}
+        const queryParams: Record<string, string> = {}
         Object.entries(filters).forEach(([key, value]) => {
-            if (value) {
-                queryParams[key] =
-                    typeof value === 'object' ? value.value : value.toString()
+            // Проверяем, что value — объект с полем value
+            if (typeof value === 'object' && value !== null && 'value' in value) {
+                queryParams[key] = String((value as { value: string }).value)
+            } else {
+                queryParams[key] = String(value)
             }
         })
         setSearchParams(queryParams)
