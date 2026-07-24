@@ -78,6 +78,32 @@ export const validateProductBody = celebrate({
     }),
 })
 
+// Валидация query-параметров для getProducts
+export const validateProductsQuery = celebrate({
+    query: Joi.object().keys({
+        page: Joi.number()
+            .integer()
+            .min(1)
+            .optional()
+            .messages({
+                'number.integer': 'Страница должна быть целым числом',
+                'number.min': 'Страница должна быть больше 0',
+                'number.base': 'Страница должна быть числом',
+            }),
+        limit: Joi.number()
+            .integer()
+            .min(1)
+            .max(10)
+            .optional()
+            .messages({
+                'number.integer': 'Лимит должен быть целым числом',
+                'number.min': 'Лимит должен быть больше 0',
+                'number.max': 'Лимит не может превышать 10',
+                'number.base': 'Лимит должен быть числом',
+            }),
+    }),
+})
+
 export const validateProductUpdateBody = celebrate({
     body: Joi.object().keys({
         title: Joi.string().min(2).max(30).messages({
