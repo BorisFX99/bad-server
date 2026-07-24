@@ -62,13 +62,14 @@ const fileFilter = (
 
     return cb(null, true)
 }
-// ✅ Добавляем ограничения
+
+//  Добавляем ограничения
 const upload = multer({
     storage,
     fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024, // ✅ 5MB максимум
-        files: 1, // ✅ Только 1 файл
+        fileSize: 5 * 1024 * 1024, //  5MB максимум
+        files: 1, //  Только 1 файл
     },
 })
 

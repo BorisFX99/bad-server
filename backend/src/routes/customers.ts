@@ -7,17 +7,46 @@ import {
     getCustomers,
     updateCustomer,
 } from '../controllers/customers'
-import auth from '../middlewares/auth'
+import auth, { roleGuardMiddleware } from '../middlewares/auth'
 import {
     validateCustomersQuery,
     validateId
  } from '../middlewares/validations'
+import { Role } from '../models/user'
 
 const customerRouter = Router()
 
-customerRouter.get('/', auth, validateCustomersQuery, getCustomers)
-customerRouter.get('/:id', auth, validateId, getCustomerById)
-customerRouter.patch('/:id', auth, csrfMiddleware, updateCustomer)
-customerRouter.delete('/:id', auth, csrfMiddleware, deleteCustomer)
+// Все маршруты только для админов!
+customerRouter.get(
+    '/',
+    auth,
+    roleGuardMiddleware(Role.Admin), 
+    validateCustomersQuery,
+    getCustomers
+)
+
+customerRouter.get(
+    '/:id',
+    auth,
+    roleGuardMiddleware(Role.Admin),
+    validateId,
+    getCustomerById
+)
+
+customerRouter.patch(
+    '/:id',
+    auth,
+    roleGuardMiddleware(Role.Admin),
+    csrfMiddleware,
+    updateCustomer
+)
+
+customerRouter.delete(
+    '/:id',
+    auth,
+    roleGuardMiddleware(Role.Admin),
+    csrfMiddleware,
+    deleteCustomer
+)
 
 export default customerRouter

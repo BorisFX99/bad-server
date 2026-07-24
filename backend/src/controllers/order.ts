@@ -29,7 +29,12 @@ export const getOrders = async (
             orderDateTo,
             search,
         } = req.query
-         console.log('QUERY PARAMS:', req.query)  // ✅ Добавить
+
+        // Нормализуем page и limit
+        const pageNum = Number(page)
+        const limitNum = Number(limit)
+        const safePage = Math.max(1, pageNum)
+        const safeLimit = Math.min(10, Math.max(1, limitNum))
 
         const filters: FilterQuery<Partial<IOrder>> = {}
 
@@ -93,24 +98,23 @@ export const getOrders = async (
         ]
 
         if (search && typeof search === 'string') {
-          // Экранируем спецсимволы
-          const escapedSearch = escapeRegExp(search)
-          const searchRegex = new RegExp(escapedSearch, 'i')
-          const searchNumber = Number(search)
+            const escapedSearch = escapeRegExp(search)
+            const searchRegex = new RegExp(escapedSearch, 'i')
+            const searchNumber = Number(search)
 
-          const searchConditions: any[] = [{ 'products.title': searchRegex }]
+            const searchConditions: any[] = [{ 'products.title': searchRegex }]
 
-          if (!Number.isNaN(searchNumber)) {
-            searchConditions.push({ orderNumber: searchNumber })
-          }
+            if (!Number.isNaN(searchNumber)) {
+                searchConditions.push({ orderNumber: searchNumber })
+            }
 
-          aggregatePipeline.push({
-            $match: {
-              $or: searchConditions,
-            },
-          })
+            aggregatePipeline.push({
+                $match: {
+                    $or: searchConditions,
+                },
+            })
 
-          filters.$or = searchConditions
+            filters.$or = searchConditions
         }
 
         const sort: { [key: string]: any } = {}
@@ -121,8 +125,8 @@ export const getOrders = async (
 
         aggregatePipeline.push(
             { $sort: sort },
-            { $skip: (Number(page) - 1) * Number(limit) },
-            { $limit: Number(limit) },
+            { $skip: (safePage - 1) * safeLimit },
+            { $limit: safeLimit },
             {
                 $group: {
                     _id: '$_id',
@@ -138,15 +142,15 @@ export const getOrders = async (
 
         const orders = await Order.aggregate(aggregatePipeline)
         const totalOrders = await Order.countDocuments(filters)
-        const totalPages = Math.ceil(totalOrders / Number(limit))
+        const totalPages = Math.ceil(totalOrders / safeLimit)
 
         res.status(200).json({
             orders,
             pagination: {
                 totalOrders,
                 totalPages,
-                currentPage: Number(page),
-                pageSize: Number(limit),
+                currentPage: safePage,
+                pageSize: safeLimit,
             },
         })
     } catch (error) {

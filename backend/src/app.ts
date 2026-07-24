@@ -9,12 +9,15 @@ import { PORT, DB_ADDRESS, ORIGIN_ALLOW } from './config'
 import errorHandler from './middlewares/error-handler'
 import serveStatic from './middlewares/serverStatic'
 import routes from './routes'
+import { globalLimiter } from './middlewares/rateLimiter'
 
 const app = express()
 
 app.use(cookieParser())
 
-// app.use(cors())
+// Добавляем глобальный лимит для всех запросов
+app.use(globalLimiter)
+
 app.use(cors({
     origin: ORIGIN_ALLOW,
     credentials: true,

@@ -20,7 +20,13 @@ import { csrfMiddleware } from '../middlewares/csrf'
 const orderRouter = Router()
 
 orderRouter.post('/', auth, csrfMiddleware, validateOrderBody, createOrder)
-orderRouter.get('/all', auth, validateOrdersQuery, getOrders)
+orderRouter.get(
+    '/all',
+    auth,
+    roleGuardMiddleware(Role.Admin),
+    validateOrdersQuery,
+    getOrders
+)
 orderRouter.get('/all/me', auth, validateOrdersCurrentUserQuery, getOrdersCurrentUser)
 orderRouter.get(
     '/:orderNumber',
