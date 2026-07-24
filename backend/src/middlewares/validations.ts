@@ -93,12 +93,10 @@ export const validateProductsQuery = celebrate({
         limit: Joi.number()
             .integer()
             .min(1)
-            .max(20)
-            .optional()
+            .default(10)
             .messages({
                 'number.integer': 'Лимит должен быть целым числом',
                 'number.min': 'Лимит должен быть больше 0',
-                'number.max': 'Лимит не может превышать 10',
                 'number.base': 'Лимит должен быть числом',
             }),
     }),
@@ -182,12 +180,10 @@ export const validateOrdersQuery = celebrate({
         limit: Joi.number()
             .integer()
             .min(1)
-            .max(10)
-            .optional()
+            .default(10)
             .messages({
                 'number.integer': 'Лимит должен быть целым числом',
                 'number.min': 'Лимит должен быть больше 0',
-                'number.max': 'Лимит не может превышать 10',
                 'number.base': 'Лимит должен быть числом',
             }),
         sortField: Joi.string()
@@ -251,12 +247,10 @@ export const validateOrdersCurrentUserQuery = celebrate({
         limit: Joi.number()
             .integer()
             .min(1)
-            .max(10)  // Максимум 10 заказов
             .default(5)
             .messages({
                 'number.integer': 'Лимит должен быть целым числом',
                 'number.min': 'Лимит должен быть больше 0',
-                'number.max': 'Лимит не может превышать 10',
                 'number.base': 'Лимит должен быть числом',
             }),
         search: Joi.string()
@@ -283,12 +277,10 @@ export const validateCustomersQuery = celebrate({
         limit: Joi.number()
             .integer()
             .min(1)
-            .max(10)
             .default(10)
             .messages({
                 'number.integer': 'Лимит должен быть целым числом',
                 'number.min': 'Лимит должен быть больше 0',
-                'number.max': 'Лимит не может превышать 10',
                 'number.base': 'Лимит должен быть числом',
             }),
         sortField: Joi.string()
