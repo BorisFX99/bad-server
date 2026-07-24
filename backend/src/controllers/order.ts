@@ -173,11 +173,6 @@ export const getOrdersCurrentUser = async (
         const safePage = Math.max(1, pageNum)
         const safeLimit = Math.min(10, Math.max(1, limitNum))
 
-        const options = {
-            skip: (safePage - 1) * safeLimit,
-            limit: safeLimit,
-        }
-
         const user = await User.findById(userId)
             .populate({
                 path: 'orders',
@@ -216,10 +211,14 @@ export const getOrdersCurrentUser = async (
         const totalOrders = orders.length
         const totalPages = Math.ceil(totalOrders / safeLimit)
 
-        orders = orders.slice(options.skip, options.skip + options.limit)
+        // ✅ ТОЛЬКО ОДИН SLICE ДЛЯ ПАГИНАЦИИ
+        const paginatedOrders = orders.slice(
+            (safePage - 1) * safeLimit,
+            safePage * safeLimit
+        )
 
         return res.send({
-            orders,
+            orders: paginatedOrders,
             pagination: {
                 totalOrders,
                 totalPages,
