@@ -13,11 +13,6 @@ import { globalLimiter } from './middlewares/rateLimiter'
 
 const app = express()
 
-app.use(cookieParser())
-
-// Добавляем глобальный лимит для всех запросов
-app.use(globalLimiter)
-
 app.use(cors({
     origin: ORIGIN_ALLOW,
     credentials: true,
@@ -26,7 +21,10 @@ app.use(cors({
 }));
 // app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(serveStatic(path.join(__dirname, 'public')))
+// Добавляем глобальный лимит для всех запросов
+app.use(globalLimiter)
+
+app.use(cookieParser())
 
 app.use(urlencoded({
     extended: true,
@@ -35,6 +33,8 @@ app.use(urlencoded({
 app.use(json({
     limit: '10mb'
 }))
+
+app.use(serveStatic(path.join(__dirname, 'public')))
 
 app.options('*', cors())
 app.use(routes)

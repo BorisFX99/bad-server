@@ -12,7 +12,7 @@ import uploadRouter from './upload'
 const router = Router()
 
 router.get('/csrf-token', csrfProtection, getCsrfToken)
-router.get('/auth/csrf-token', csrfProtection, getCsrfToken)  // ← Добавить!
+router.get('/auth/csrf-token', csrfProtection, getCsrfToken)  
 
 router.use('/auth', authRouter)
 router.use('/product', productRouter)
