@@ -166,35 +166,35 @@ export const getOrdersCurrentUser = async (
     try {
         const userId = res.locals.user._id
         const { search, page = 1, limit = 5 } = req.query
+
+        // Нормализуем page и limit
+        const pageNum = Number(page)
+        const limitNum = Number(limit)
+        const safePage = Math.max(1, pageNum)
+        const safeLimit = Math.min(10, Math.max(1, limitNum))
+
         const options = {
-            skip: (Number(page) - 1) * Number(limit),
-            limit: Number(limit),
+            skip: (safePage - 1) * safeLimit,
+            limit: safeLimit,
         }
 
         const user = await User.findById(userId)
             .populate({
                 path: 'orders',
                 populate: [
-                    {
-                        path: 'products',
-                    },
-                    {
-                        path: 'customer',
-                    },
+                    { path: 'products' },
+                    { path: 'customer' },
                 ],
             })
             .orFail(
-                () =>
-                    new NotFoundError(
-                        'Пользователь по заданному id отсутствует в базе'
-                    )
+                () => new NotFoundError(
+                    'Пользователь по заданному id отсутствует в базе'
+                )
             )
 
         let orders = user.orders as unknown as IOrder[]
 
         if (search && typeof search === 'string') {
-            // Экранируем спецсимволы
-            // если не экранировать то получаем Invalid regular expression: /+1/i: Nothing to repeat
             const escapedSearch = escapeRegExp(search)
             const searchRegex = new RegExp(escapedSearch, 'i')
             const searchNumber = Number(search)
@@ -202,11 +202,9 @@ export const getOrdersCurrentUser = async (
             const productIds = products.map((product) => product._id)
 
             orders = orders.filter((order) => {
-                // eslint-disable-next-line max-len
                 const matchesProductTitle = order.products.some((product) =>
                     productIds.some((id) => id.equals(product._id))
                 )
-                // eslint-disable-next-line max-len
                 const matchesOrderNumber =
                     !Number.isNaN(searchNumber) &&
                     order.orderNumber === searchNumber
@@ -216,7 +214,7 @@ export const getOrdersCurrentUser = async (
         }
 
         const totalOrders = orders.length
-        const totalPages = Math.ceil(totalOrders / Number(limit))
+        const totalPages = Math.ceil(totalOrders / safeLimit)
 
         orders = orders.slice(options.skip, options.skip + options.limit)
 
@@ -225,8 +223,8 @@ export const getOrdersCurrentUser = async (
             pagination: {
                 totalOrders,
                 totalPages,
-                currentPage: Number(page),
-                pageSize: Number(limit),
+                currentPage: safePage,
+                pageSize: safeLimit,
             },
         })
     } catch (error) {

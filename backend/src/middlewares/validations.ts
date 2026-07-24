@@ -93,7 +93,7 @@ export const validateProductsQuery = celebrate({
         limit: Joi.number()
             .integer()
             .min(1)
-            .max(10)
+            .max(20)
             .optional()
             .messages({
                 'number.integer': 'Лимит должен быть целым числом',

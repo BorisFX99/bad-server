@@ -2,7 +2,7 @@ import rateLimit  from 'express-rate-limit'
 
 export const globalLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 минута
-    limit: 10, // В версии 8.x используется `limit`, а не `max`
+    limit: 50, // В версии 8.x используется `limit`, а не `max`
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     handler: (req, res) => {
