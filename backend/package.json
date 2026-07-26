@@ -14,6 +14,7 @@
   "author": "< Укажите здесь автора работы >",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^10.0.0",
     "@types/argon2": "^0.14.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.7",
@@ -26,15 +27,14 @@
     "@types/node": "^20.12.7",
     "@types/unique-slug": "^4.0.0",
     "@types/validator": "^13.11.9",
-    "@typescript-eslint/eslint-plugin": "^7.7.1",
-    "@typescript-eslint/parser": "^7.7.1",
-    "eslint": "^8.56.0",
-    "eslint-config-airbnb-base": "^15.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
+    "eslint": "^10.8.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.29.1",
+    "eslint-import-resolver-node": "^0.3.10",
+    "eslint-plugin-import-x": "^4.17.1",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.5"
   },
   "dependencies": {
@@ -59,5 +59,9 @@
     "unique-slug": "^4.0.0",
     "validator": "^13.12.0",
     "xss": "^1.0.15"
+  },
+  "overrides": {
+    "cookie": "0.7.2",
+    "lodash": "4.18.0"
   }
 }
