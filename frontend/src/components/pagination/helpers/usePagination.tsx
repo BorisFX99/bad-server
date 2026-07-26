@@ -2,7 +2,7 @@ import { AsyncThunk } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from '@store/hooks'
 import { RootState } from '@store/store'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 interface PaginationResult<_, U> {
     data: U[]
@@ -14,8 +14,6 @@ interface PaginationResult<_, U> {
     setPage: (page: number) => void
     setLimit: (limit: number) => void
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 const usePagination = <T, U>(
     asyncAction: AsyncThunk<T, Record<string, unknown>, any>,

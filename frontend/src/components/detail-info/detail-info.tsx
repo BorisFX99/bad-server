@@ -11,7 +11,7 @@ interface Header {
     label: string
     extraClass?: string
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    render?: (data: any) => JSX.Element
+    render?: (data: any) => React.JSX.Element
 }
 
 interface DetailInfoProps {
