@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from 'express'
+import { NextFunction, Request, Response, Router } from 'express';
 import NotFoundError from '../errors/not-found-error'
 import { getCsrfToken, csrfProtection } from '../middlewares/csrf'
 
@@ -12,7 +12,7 @@ import uploadRouter from './upload'
 const router = Router()
 
 router.get('/csrf-token', csrfProtection, getCsrfToken)
-router.get('/auth/csrf-token', csrfProtection, getCsrfToken)  
+router.get('/auth/csrf-token', csrfProtection, getCsrfToken)
 
 router.use('/auth', authRouter)
 router.use('/product', productRouter)

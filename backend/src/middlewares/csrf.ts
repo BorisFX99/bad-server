@@ -8,7 +8,7 @@ export const csrfProtection = csurf({
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-    },
+    } as any,
 })
 
 // Обертка для обработки ошибок CSRF
@@ -30,7 +30,7 @@ export const csrfMiddleware = (
     }
 
     // ✅ Применяем CSRF защиту
-    return csrfProtection(req, res, (err) => {
+    return csrfProtection(req, res, (err: any) => {
         if (err) {
             // Обрабатываем ошибку CSRF
             if (err.code === 'EBADCSRFTOKEN') {
