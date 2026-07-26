@@ -8,7 +8,6 @@ interface InputProps
         HTMLInputElement
     > {
     onChange: (evt: React.ChangeEvent<HTMLInputElement>) => void
-    onInput?: (evt: React.ChangeEvent<HTMLInputElement>) => void
     onBlur?: (evt: React.FocusEvent<HTMLInputElement>) => void
     value: string | number
     label?: string
@@ -21,7 +20,6 @@ interface InputProps
 
 export function Input({
     onChange,
-    onInput,
     onBlur,
     value,
     label,
@@ -47,7 +45,6 @@ export function Input({
             )}
             <Component
                 className={clsx(styles.form__input, extraClass)}
-                onInput={onInput}
                 onBlur={onBlur}
                 onChange={onChange}
                 value={value}

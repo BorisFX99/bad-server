@@ -1,4 +1,4 @@
-/* eslint-disable no-param-reassign */
+ 
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import mongoose, { Document, HydratedDocument, Model, Types } from 'mongoose'

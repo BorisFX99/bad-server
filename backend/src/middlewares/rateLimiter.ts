@@ -5,7 +5,7 @@ export const globalLimiter = rateLimit({
     limit: 50, // В версии 8.x используется `limit`, а не `max`
     standardHeaders: 'draft-7',
     legacyHeaders: false,
-    handler: (req, res) => {
+    handler: (_req, res) => {
       res.status(429).json({
       success: false,
       error: "Слишком много запросов. Пожалуйста, повторите позже."

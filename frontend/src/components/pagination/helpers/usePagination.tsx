@@ -15,8 +15,6 @@ interface PaginationResult<_, U> {
     setLimit: (limit: number) => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-
 const usePagination = <T, U>(
     asyncAction: AsyncThunk<T, Record<string, unknown>, any>,
     selector: (state: RootState) => U[],
