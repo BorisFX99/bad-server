@@ -5,7 +5,7 @@ import {
     To,
     useLocation,
     useNavigate,
-} from 'react-router-dom'
+} from 'react-router'
 import '../../index.scss'
 import styles from './app.module.scss'
 
@@ -155,11 +155,11 @@ const RouteComponent = () => {
                         element={<OrderAddress />}
                     />
                     <Route
-                        path={AppRoute.OrderAddress}
+                        path={AppRoute.OrderContacts}
                         element={<OrderContacts />}
                     />
                     <Route
-                        path={AppRoute.OrderAddress}
+                        path={AppRoute.OrderSuccess}
                         element={<OrderSuccess />}
                     />
                 </Route>

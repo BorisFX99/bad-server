@@ -1,8 +1,8 @@
 import { Joi, celebrate } from 'celebrate'
 import { Types } from 'mongoose'
 
-// eslint-disable-next-line no-useless-escape
-export const phoneRegExp = /^(\+\d+)?(?:\s|-?|\(?\d+\)?)+$/
+ 
+export const phoneRegExp = /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/
 
 export enum PaymentType {
     Card = 'card',
@@ -44,7 +44,14 @@ export const validateOrderBody = celebrate({
         total: Joi.number().required().messages({
             'string.empty': 'Не указана сумма заказа',
         }),
-        comment: Joi.string().optional().allow(''),
+        comment:
+        Joi.string()
+        .optional()
+        .allow('')
+        .max(1000)  // ✅ Ограничение длины
+        .messages({
+            'string.max': 'Комментарий не должен превышать 1000 символов',
+        }),
     }),
 })
 
@@ -68,6 +75,30 @@ export const validateProductBody = celebrate({
             'string.empty': 'Поле "description" должно быть заполнено',
         }),
         price: Joi.number().allow(null),
+    }),
+})
+
+// Валидация query-параметров для getProducts
+export const validateProductsQuery = celebrate({
+    query: Joi.object().keys({
+        page: Joi.number()
+            .integer()
+            .min(1)
+            .optional()
+            .messages({
+                'number.integer': 'Страница должна быть целым числом',
+                'number.min': 'Страница должна быть больше 0',
+                'number.base': 'Страница должна быть числом',
+            }),
+        limit: Joi.number()
+            .integer()
+            .min(1)
+            .default(10)
+            .messages({
+                'number.integer': 'Лимит должен быть целым числом',
+                'number.min': 'Лимит должен быть больше 0',
+                'number.base': 'Лимит должен быть числом',
+            }),
     }),
 })
 
@@ -131,5 +162,202 @@ export const validateAuthentication = celebrate({
         password: Joi.string().required().messages({
             'string.empty': 'Поле "password" должно быть заполнено',
         }),
+    }),
+})
+
+// валидация query параметров для getOrders
+export const validateOrdersQuery = celebrate({
+    query: Joi.object().keys({
+        page: Joi.number()
+            .integer()
+            .min(1)
+            .optional()
+            .messages({
+                'number.integer': 'Страница должна быть целым числом',
+                'number.min': 'Страница должна быть больше 0',
+                'number.base': 'Страница должна быть числом',
+            }),
+        limit: Joi.number()
+            .integer()
+            .min(1)
+            .default(10)
+            .messages({
+                'number.integer': 'Лимит должен быть целым числом',
+                'number.min': 'Лимит должен быть больше 0',
+                'number.base': 'Лимит должен быть числом',
+            }),
+        sortField: Joi.string()
+            .valid('createdAt', 'orderNumber', 'totalAmount', 'status')
+            .default('createdAt')
+            .messages({
+                'string.valid': 'Недопустимое поле для сортировки',
+            }),
+        sortOrder: Joi.string()
+            .valid('asc', 'desc')
+            .default('desc')
+            .messages({
+                'string.valid': 'Недопустимый порядок сортировки',
+            }),
+        status: Joi.string()
+            .valid('new', 'delivering', 'completed', 'cancelled')
+            .messages({
+                'string.valid': 'Недопустимый статус заказа',
+            }),
+        totalAmountFrom: Joi.number()
+            .min(0)
+            .messages({
+                'number.min': 'Сумма должна быть больше или равна 0',
+                'number.base': 'Сумма должна быть числом',
+            }),
+        totalAmountTo: Joi.number()
+            .min(0)
+            .messages({
+                'number.min': 'Сумма должна быть больше или равна 0',
+                'number.base': 'Сумма должна быть числом',
+            }),
+        orderDateFrom: Joi.date()
+            .messages({
+                'date.base': 'Невалидная дата',
+            }),
+        orderDateTo: Joi.date()
+            .messages({
+                'date.base': 'Невалидная дата',
+            }),
+        search: Joi.string()
+            .max(100)
+            .allow('')
+            .messages({
+                'string.max': 'Поисковый запрос не должен превышать 100 символов',
+            }),
+    }),
+})
+
+// Валидация query-параметров для getOrdersCurrentUser
+export const validateOrdersCurrentUserQuery = celebrate({
+    query: Joi.object().keys({
+        page: Joi.number()
+            .integer()
+            .min(1)
+            .default(1)
+            .messages({
+                'number.integer': 'Страница должна быть целым числом',
+                'number.min': 'Страница должна быть больше 0',
+                'number.base': 'Страница должна быть числом',
+            }),
+        limit: Joi.number()
+            .integer()
+            .min(1)
+            .default(5)
+            .messages({
+                'number.integer': 'Лимит должен быть целым числом',
+                'number.min': 'Лимит должен быть больше 0',
+                'number.base': 'Лимит должен быть числом',
+            }),
+        search: Joi.string()
+            .max(100)
+            .allow('')
+            .messages({
+                'string.max': 'Поисковый запрос не должен превышать 100 символов',
+            }),
+    }),
+})
+
+// Валидация query-параметров для getCustomers
+export const validateCustomersQuery = celebrate({
+    query: Joi.object().keys({
+        page: Joi.number()
+            .integer()
+            .min(1)
+            .default(1)
+            .messages({
+                'number.integer': 'Страница должна быть целым числом',
+                'number.min': 'Страница должна быть больше 0',
+                'number.base': 'Страница должна быть числом',
+            }),
+        limit: Joi.number()
+            .integer()
+            .min(1)
+            .default(10)
+            .messages({
+                'number.integer': 'Лимит должен быть целым числом',
+                'number.min': 'Лимит должен быть больше 0',
+                'number.base': 'Лимит должен быть числом',
+            }),
+        sortField: Joi.string()
+            .valid('createdAt', 'name', 'totalAmount', 'orderCount')
+            .default('createdAt')
+            .messages({
+                'string.valid': 'Недопустимое поле для сортировки',
+            }),
+        sortOrder: Joi.string()
+            .valid('asc', 'desc')
+            .default('desc')
+            .messages({
+                'string.valid': 'Недопустимый порядок сортировки',
+            }),
+        registrationDateFrom: Joi.date()
+            .messages({
+                'date.base': 'Невалидная дата',
+            }),
+        registrationDateTo: Joi.date()
+            .messages({
+                'date.base': 'Невалидная дата',
+            }),
+        lastOrderDateFrom: Joi.date()
+            .messages({
+                'date.base': 'Невалидная дата',
+            }),
+        lastOrderDateTo: Joi.date()
+            .messages({
+                'date.base': 'Невалидная дата',
+            }),
+        totalAmountFrom: Joi.number()
+            .min(0)
+            .messages({
+                'number.min': 'Сумма должна быть больше или равна 0',
+                'number.base': 'Сумма должна быть числом',
+            }),
+        totalAmountTo: Joi.number()
+            .min(0)
+            .messages({
+                'number.min': 'Сумма должна быть больше или равна 0',
+                'number.base': 'Сумма должна быть числом',
+            }),
+        orderCountFrom: Joi.number()
+            .integer()
+            .min(0)
+            .messages({
+                'number.integer': 'Количество заказов должно быть целым числом',
+                'number.min': 'Количество заказов должно быть больше или равно 0',
+                'number.base': 'Количество заказов должно быть числом',
+            }),
+        orderCountTo: Joi.number()
+            .integer()
+            .min(0)
+            .messages({
+                'number.integer': 'Количество заказов должно быть целым числом',
+                'number.min': 'Количество заказов должно быть больше или равно 0',
+                'number.base': 'Количество заказов должно быть числом',
+            }),
+        search: Joi.string()
+            .max(100)
+            .allow('')
+            .messages({
+                'string.max': 'Поисковый запрос не должен превышать 100 символов',
+            }),
+    }),
+})
+
+// Валидация ID для пользователей, заказов и т.д.
+export const validateId = celebrate({
+    params: Joi.object().keys({
+        id: Joi.string()
+            .required()
+            .custom((value, helpers) => {
+                if (Types.ObjectId.isValid(value)) {
+                    return value
+                }
+                return helpers.message({ any: 'Невалидный id' })
+            }),
     }),
 })

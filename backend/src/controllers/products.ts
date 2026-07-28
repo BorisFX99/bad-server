@@ -12,20 +12,29 @@ import movingFile from '../utils/movingFile'
 const getProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page = 1, limit = 5 } = req.query
+
+        // Нормализуем page и limit
+        const pageNum = Number(page)
+        const limitNum = Number(limit)
+        const safePage = Math.max(1, pageNum)
+        const safeLimit = Math.min(10, Math.max(1, limitNum))
+
         const options = {
-            skip: (Number(page) - 1) * Number(limit),
-            limit: Number(limit),
+            skip: (safePage - 1) * safeLimit,
+            limit: safeLimit,
         }
+
         const products = await Product.find({}, null, options)
         const totalProducts = await Product.countDocuments({})
-        const totalPages = Math.ceil(totalProducts / Number(limit))
+        const totalPages = Math.ceil(totalProducts / safeLimit)
+
         return res.send({
             items: products,
             pagination: {
                 totalProducts,
                 totalPages,
-                currentPage: Number(page),
-                pageSize: Number(limit),
+                currentPage: safePage,
+                pageSize: safeLimit,
             },
         })
     } catch (err) {

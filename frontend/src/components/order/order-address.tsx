@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 
 import Button from '@components/button'
 import { useEffect, useRef } from 'react'
@@ -87,7 +87,7 @@ export function OrderAddress() {
                 error={errors.address}
             />
             <div className={styles.order__buttons}>
-                <Button type='submit' onClick={nextStep} disabled={!isValid}>
+                <Button type='button' onClick={nextStep} disabled={!isValid}>
                     Далее
                 </Button>
             </div>

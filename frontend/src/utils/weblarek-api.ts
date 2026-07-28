@@ -33,6 +33,8 @@ export type ApiListResponse<Type> = {
 class Api {
     private readonly baseUrl: string
     protected options: RequestInit
+    private csrfToken: string | null = null
+    private isCsrfFetching: boolean = false
 
     constructor(baseUrl: string, options: RequestInit = {}) {
         this.baseUrl = baseUrl
@@ -40,6 +42,47 @@ class Api {
             headers: {
                 ...((options.headers as object) ?? {}),
             },
+        }
+        this.fetchCsrfToken()
+    }
+
+    // НОВЫЙ МЕТОД: Получение CSRF токена
+    private fetchCsrfToken = async (): Promise<string | null> => {
+        // Если уже есть токен — возвращаем
+        if (this.csrfToken) return this.csrfToken
+
+        // Если уже идет запрос — ждем
+        if (this.isCsrfFetching) {
+            return new Promise((resolve) => {
+                const checkToken = () => {
+                    if (this.csrfToken) {
+                        resolve(this.csrfToken)
+                    } else {
+                        setTimeout(checkToken, 100)
+                    }
+                }
+                checkToken()
+            })
+        }
+
+        this.isCsrfFetching = true
+        try {
+            const response = await fetch(`${this.baseUrl}/csrf-token`, {
+                credentials: 'include',
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch CSRF token')
+            }
+
+            const data = await response.json()
+            this.csrfToken = data.csrfToken
+            return this.csrfToken
+        } catch (error) {
+            console.error('CSRF token fetch error:', error)
+            return null
+        } finally {
+            this.isCsrfFetching = false
         }
     }
 
@@ -54,10 +97,33 @@ class Api {
     }
 
     protected async request<T>(endpoint: string, options: RequestInit) {
+        // Добавляем CSRF токен для мутирующих методов
+        const methodsWithCsrf = ['POST', 'PUT', 'PATCH', 'DELETE']
+        const method = options.method?.toUpperCase() || 'GET'
+
+        // Проверяем, что это не публичный маршрут
+        const publicRoutes = ['/auth/login', '/auth/register', '/auth/token', '/csrf-token']
+        const isPublicRoute = publicRoutes.some(route => endpoint.includes(route))
+
+        //  Создаем заголовки как Record
+        const headers: Record<string, string> = {
+          ...this.options.headers as Record<string, string>,
+          ...options.headers as Record<string, string>,
+        }
+
+        if (methodsWithCsrf.includes(method) && !isPublicRoute) {
+          if (!this.csrfToken) {
+          await this.fetchCsrfToken()
+        }
+        // Теперь CSRF-Token — допустимый ключ
+        headers['CSRF-Token'] = this.csrfToken || ''
+        }
         try {
             const res = await fetch(`${this.baseUrl}${endpoint}`, {
                 ...this.options,
                 ...options,
+                headers,
+                credentials: 'include',
             })
             return await this.handleResponse<T>(res)
         } catch (error) {
@@ -174,9 +240,16 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
     getAllOrders = (
         filters: Record<string, unknown> = {}
     ): Promise<IOrderPaginationResult> => {
-        const queryParams = new URLSearchParams(
-            filters as Record<string, string>
-        ).toString()
+      // ✅ Очищаем фильтры от null, undefined, пустых строк
+      const cleanFilters: Record<string, string> = {}
+      for (const [key, value] of Object.entries(filters)) {
+        // Пропускаем все "пустые" значения
+        if (value === null || value === undefined || value === '') {
+            continue
+        }
+        cleanFilters[key] = String(value)
+      }
+        const queryParams = new URLSearchParams(cleanFilters).toString()
         return this.requestWithRefresh<IOrderPaginationResult>(
             `/order/all?${queryParams}`,
             {

@@ -1,3 +1,5 @@
+import { JSX } from 'react'
+
 export interface Column {
     title: string
     dataIndex: string

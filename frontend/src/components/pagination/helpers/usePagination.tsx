@@ -2,7 +2,7 @@ import { AsyncThunk } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from '@store/hooks'
 import { RootState } from '@store/store'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 interface PaginationResult<_, U> {
     data: U[]
@@ -32,7 +32,7 @@ const usePagination = <T, U>(
 
     const limit = Number(searchParams.get('limit')) || defaultLimit
 
-    const fetchData = async (params: Record<string, any>) => {
+    const fetchData = async (params: Record<string, unknown>) => {
         const response: any = await dispatch(asyncAction(params))
         setTotalPages(response.payload.pagination.totalPages)
     }
@@ -47,7 +47,6 @@ const usePagination = <T, U>(
     }, [currentPage, limit, searchParams])
 
     const updateURL = (newParams: Record<string, any>) => {
-        3
         const updatedParams = new URLSearchParams(searchParams)
         Object.entries(newParams).forEach(([key, value]) => {
             if (value !== undefined) {
